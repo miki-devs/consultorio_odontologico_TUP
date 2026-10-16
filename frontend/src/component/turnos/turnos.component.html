@@ -1,0 +1,69 @@
+<form #formTurno="ngForm" (ngSubmit)="agendar(formTurno)">
+  <label>
+    Paciente
+    <select name="paciente_id" [(ngModel)]="nuevo.paciente_id" required>
+      <option [ngValue]="null" disabled>Elegí un paciente</option>
+      @for (paciente of pacientes; track paciente.id) {
+        <option [ngValue]="paciente.id">{{ paciente.apellido }}, {{ paciente.nombre }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    Fecha y hora
+    <input type="datetime-local" name="fecha_hora" [(ngModel)]="nuevo.fecha_hora" required>
+  </label>
+
+  <label>
+    Motivo
+    <input type="text" name="motivo" [(ngModel)]="nuevo.motivo" required>
+  </label>
+
+    <button type="submit" [disabled]="formTurno.invalid">
+        {{ idEditando === null ? 'Agendar' : 'Guardar cambios' }}
+    </button>
+
+    @if (idEditando !== null) {
+        <button type="button" (click)="descartar(formTurno)">Descartar cambios</button>
+    }
+</form>
+
+@if (mensajeError) {
+  <p class="error">{{ mensajeError }}</p>
+}
+
+
+<h2>Turnos</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Fecha y hora</th>
+      <th>Paciente</th>
+      <th>Motivo</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (turno of turnos; track turno.id) {
+      <tr [class.cancelado]="turno.estado === 'Cancelado'"
+          [class.realizado]="turno.estado === 'Realizado'">
+        <td>{{ turno.fecha_hora | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ turno.paciente_apellido ?? '-' }}, {{ turno.paciente_nombre ?? '-' }}</td>
+        <td>{{ turno.motivo }}</td>
+        <td>{{ turno.estado }}</td>
+        <td>
+            @if (turno.estado === 'Pendiente') {
+                <button type="button" (click)="editar(turno)">Modificar</button>
+                <button type="button" (click)="cancelar(turno.id)">Cancelar</button>
+            }
+        </td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="5">No hay turnos cargados.</td>
+      </tr>
+    }
+  </tbody>
+</table>
